@@ -1,0 +1,12 @@
+- name: Ensure /etc/yum/repos.d exists
+  file:
+    path: /etc/yum/repos.d
+    state: directory
+
+- name: Add Skylable yum repository
+  template:
+    src: skylable.repo
+    dest: /etc/yum/repos.d/skylable.repo
+
+- name: Install Skylable SX server
+  yum: name=skylable-sx state=present

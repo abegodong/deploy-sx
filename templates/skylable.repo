@@ -1,0 +1,4 @@
+[skylable]
+name=Skylable
+baseurl=http://cdn.skylable.com/{{ ansible_distribution|lower }}/$releasever/$basearch/
+gpgcheck=0

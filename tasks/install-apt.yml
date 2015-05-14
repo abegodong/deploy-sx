@@ -1,0 +1,12 @@
+- name: Add Skylable apt repository key
+  apt_key:
+    id: 5377E192B7BC1D2E
+    url: http://cdn.skylable.com/GPG-KEY-skylable.asc
+
+- name: Add Skylable apt repository
+  apt_repository:
+    repo: "deb http://cdn.skylable.com/debian {{ ansible_distribution_release }} main"
+    update_cache: yes
+
+- name: Install Skylable SX server
+  apt: name=sx state=present

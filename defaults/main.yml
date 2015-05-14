@@ -1,0 +1,11 @@
+sx_use_ssl: true
+sx_http_port: 80
+sx_https_port: 443
+sx_port: "{% if sx_use_ssl %}{{ sx_https_port }}{% else %}{{ sx_http_port }}{% endif %}"
+sx_lib_dir: /var/lib/sxserver
+sx_data_dir: /var/lib/sxserver/storage
+sx_run_dir: /var/run/sxserver
+sx_log_file: /var/log/sxserver/sxserver.log
+sx_server_user: nobody
+sx_server_group: "{% if ansible_pkg_mgr == 'apt' %}nogroup{% else %}nobody{% endif %}"
+sx_children_num: 32

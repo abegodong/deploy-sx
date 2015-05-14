@@ -1,0 +1,123 @@
+---
+- name: Check required variables
+  assert:
+    that:
+    - sx_cluster_name is defined
+    - sx_nodes_group is defined and sx_nodes_group in groups
+  run_once: true
+
+- name: Check required per host variables
+  assert:
+    that:
+    - sx_node_size is defined
+  register: host_checks
+
+- name: Ensure all cluster nodes passed the per-host checks
+  assert:
+    that:
+    - not hostvars[item].host_checks.failed|default(False)
+  with_items: groups[sx_nodes_group]
+
+- name: Check required variables for certificate setup (set sx_use_ssl=false to disable)
+  assert:
+    that:
+    - cert_key_size is defined
+    - cert_country_code is defined
+    - cert_locality_name is defined
+    - cert_organization_name is defined
+    - cert_validity is defined
+  when: sx_use_ssl
+  run_once: true
+
+- name: Choose initial cluster node
+  set_fact:
+    first_node_name: "{{ groups[sx_nodes_group][0] }}"
+    is_first_node: "{{ inventory_hostname == groups[sx_nodes_group][0] }}"
+
+- name: Show initial cluster node
+  debug: var=first_node_name
+  when: is_first_node|bool
+
+- name: Determine node IP addresses
+  set_fact:
+    sx_node_ip: "{{ ansible_default_ipv4.address }}"
+  when: sx_node_ip is not defined
+
+- include: install-apt.yml
+  when: ansible_pkg_mgr == 'apt'
+
+- include: install-yum.yml
+  when: ansible_pkg_mgr == 'yum'
+
+- name: Confirm existence of /var/lib/sxserver
+  file:
+    path: "{{ sx_lib_dir }}"
+    state: directory
+
+- include: ssl_cert.yml
+  when: sx_use_ssl
+
+- name: Create Skylable SX configuration template for first node
+  template:
+    src: sxsetup.initial.j2
+    dest: /etc/sxserver/sxsetup.tmp
+  when: is_first_node|bool
+
+- name: Start first node
+  command: 
+    sxsetup --config-file /etc/sxserver/sxsetup.tmp
+    creates=/etc/sxserver/sxsetup.conf
+  when: is_first_node|bool
+
+- name: Get cluster UUID
+  shell: "sxsetup --info | sed -n '-es/Cluster UUID: //p'"
+  register: sx_cluster_uuid
+  changed_when: false
+  when: is_first_node|bool
+
+- name: Get cluster key
+  shell: "sxsetup --info | sed -n '-es/Cluster key: //p'"
+  register: sx_cluster_key
+  changed_when: false
+  when: is_first_node|bool
+
+- name: Get admin key
+  shell: "sxsetup --info | sed -n '-es/Admin key: //p'"
+  register: sx_admin_key
+  changed_when: false
+  when: is_first_node|bool
+
+- name: Get node UUIDs
+  shell: sxsetup --info | awk '$1 == "*" { print $2 }'
+  changed_when: false
+  register: sx_node_uuid
+
+- name: Set cluster member description
+  set_fact:
+    sx_node_desc: "{{ sx_node_size }}/{{ sx_node_ip }}/{{ sx_node_internal_ip|default('') }}{% if sx_node_uuid.stdout %}/{{ sx_node_uuid.stdout }}{% endif %}"
+
+- name: Create Skylable SX configuration template for remaining nodes
+  template:
+    src: sxsetup.tmp.j2
+    dest: /etc/sxserver/sxsetup.tmp
+  when: not is_first_node|bool
+
+- name: Start remaining nodes
+  command: 
+    sxsetup --bare --config-file /etc/sxserver/sxsetup.tmp
+    creates=/etc/sxserver/sxsetup.conf
+  when: not is_first_node|bool
+
+- name: Configure cluster
+  command: 
+    sxadm cluster -b -M {% for sx_node in groups[sx_nodes_group] %}{{ hostvars[sx_node].sx_node_desc }} {% endfor %}sx://admin@{{ sx_cluster_name }}
+  when: is_first_node|bool
+
+- name: print admin key
+  debug: var=sx_admin_key.stdout
+  when: is_first_node|bool
+
+- name: breadcrumb
+  debug: msg="Cluster installed. Now run sxinit {% if not sx_use_ssl %}--no-ssl {% endif %}sx://{{ sx_cluster_name }}"
+  when: is_first_node|bool
+
