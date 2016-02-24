@@ -9,3 +9,4 @@ sx_log_file: /var/log/sxserver/sxserver.log
 sx_server_user: nobody
 sx_server_group: "{% if ansible_pkg_mgr == 'apt' %}nogroup{% else %}nobody{% endif %}"
 sx_children_num: 32
+sx_reserved_children_num: 8
