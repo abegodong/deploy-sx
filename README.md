@@ -54,17 +54,17 @@ for variables affecting just one host.
     # sx_node_internal_ip defaults to empty -> use sx_node_ip
     ---
     - hosts: sxnodes
-    remote_user: root
-    roles:
+      remote_user: root
+      roles:
         - role: skylable.deploy-sx
-        sx_cluster_name: testcluster
-        sx_nodes_group: sxnodes
-        cert_key_size: 2048
-        cert_country_code: UK
-        cert_locality_name: London
-        cert_organization_name: Skylable
-        cert_validity: 3650
-        sx_use_ssl: false
+          sx_cluster_name: testcluster
+          sx_nodes_group: sxnodes
+          cert_key_size: 2048
+          cert_country_code: UK
+          cert_locality_name: London
+          cert_organization_name: Skylable
+          cert_validity: 3650
+          sx_use_ssl: false
       
 License
 -------
