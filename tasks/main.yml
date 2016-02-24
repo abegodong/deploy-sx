@@ -64,7 +64,7 @@
   when: is_first_node|bool
 
 - name: Start first node
-  command: 
+  command:
     sxsetup --config-file /etc/sxserver/sxsetup.tmp
     creates=/etc/sxserver/sxsetup.conf
   when: is_first_node|bool
@@ -103,13 +103,13 @@
   when: not is_first_node|bool
 
 - name: Start remaining nodes
-  command: 
+  command:
     sxsetup --bare --config-file /etc/sxserver/sxsetup.tmp
     creates=/etc/sxserver/sxsetup.conf
   when: not is_first_node|bool
 
 - name: Configure cluster
-  command: 
+  command:
     sxadm cluster -b -M {% for sx_node in groups[sx_nodes_group] %}{{ hostvars[sx_node].sx_node_desc }} {% endfor %}sx://admin@{{ sx_cluster_name }}
   when: is_first_node|bool
 
@@ -120,4 +120,3 @@
 - name: breadcrumb
   debug: msg="Cluster installed. Now run sxinit {% if not sx_use_ssl %}--no-ssl {% endif %}sx://{{ sx_cluster_name }}"
   when: is_first_node|bool
-
