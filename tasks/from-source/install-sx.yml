@@ -22,7 +22,7 @@
     - git
 
 - name: Clone Skylable SX git repository
-  git: repo=http://git.skylable.com/sx dest={{ sx_repo_dir }} version={{ sx_build_commit }}
+  git: repo=http://git.skylable.com/sx dest={{ sx_repo_dir }} version={{ sx_build_version }}
 
 - name: Get build stamp of current checkout
   shell: "cd {{ sx_repo_dir }}; git describe --always"
