@@ -3,7 +3,7 @@
   register: nss_check
   failed_when: "{{ nss_check.rc == '2' }}"
 
-- name: Build sx
+- name: Build Skylable SX
   shell: >
     cd {{ sx_repo_dir }} &&
     ./configure --prefix={{ sx_build_dir }} {% if nss_check.rc == 0 %}--with-nss{% endif %}&&

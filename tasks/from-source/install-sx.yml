@@ -1,4 +1,4 @@
-- name: Install SX dependencies (apt)
+- name: Install Skylable SX dependencies (apt)
   when: ansible_pkg_mgr == 'apt'
   apt: name={{item}} state=installed
   with_items:
@@ -9,7 +9,7 @@
     - libssl-dev
     - git
 
-- name: Install SX dependencies (yum)
+- name: Install Skylable SX dependencies (yum)
   when: ansible_pkg_mgr == 'yum'
   yum: name={{ item }} state=installed
   with_items:
@@ -21,14 +21,14 @@
     - fuse-devel
     - git
 
-- name: Clone SX git repo
+- name: Clone Skylable SX git repository
   git: repo=http://git.skylable.com/sx dest={{ sx_repo_dir }} version={{ sx_build_commit }}
 
 - name: Get build stamp of current checkout
   shell: "cd {{ sx_repo_dir }}; git describe --always"
   register: sx_new_build_stamp
 
-- name: Get build stamp of last sx build
+- name: Get build stamp of last Skylable SX build
   shell: "cat {{ sx_build_stamp_path }} || echo"
   register: sx_last_build_stamp
 
