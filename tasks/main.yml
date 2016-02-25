@@ -16,7 +16,7 @@
   assert:
     that:
     - not hostvars[item].host_checks.failed|default(False)
-  with_items: groups[sx_nodes_group]
+  with_items: "{{ groups[sx_nodes_group] }}"
 
 - name: Check required variables for certificate setup (set sx_use_ssl=false to disable)
   assert:
