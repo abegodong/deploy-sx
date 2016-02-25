@@ -1,0 +1,27 @@
+- name: Install SX dependencies (apt)
+  when: ansible_pkg_mgr == 'apt'
+  apt: name={{item}} state=installed
+  with_items:
+    - make
+    - gcc
+    - libcurl4-openssl-dev
+    - zlib1g-dev
+    - libssl-dev
+    - git
+
+- name: Install SX dependencies (yum)
+  when: ansible_pkg_mgr == 'yum'
+  yum: name={{ item }} state=installed
+  with_items:
+    - make
+    - gcc
+    - libcurl-devel
+    - zlib-devel
+    - openssl-devel
+    - fuse-devel
+    - git
+
+- name: Clone SX git repo
+  git: repo=http://git.skylable.com/sx dest={{ sx_repo_dir }} version={{ sx_build_commit }}
+
+- include: build-sx.yml

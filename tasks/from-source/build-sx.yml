@@ -1,0 +1,6 @@
+- name: Build sx
+  shell: >
+    cd {{ sx_repo_dir }} &&
+    ./configure &&
+    make &&
+    make install

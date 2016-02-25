@@ -3,6 +3,7 @@
   assert:
     that:
     - sx_cluster_name is defined
+    - sx_cluster_name is defined
     - sx_nodes_group is defined and sx_nodes_group in groups
   run_once: true
 
@@ -43,11 +44,13 @@
     sx_node_ip: "{{ ansible_default_ipv4.address }}"
   when: sx_node_ip is not defined
 
-- include: install-apt.yml
-  when: ansible_pkg_mgr == 'apt'
+- name: Install Skylable SX from source
+  include: from-source/install-sx.yml
+  when: sx_build_commit is not none
 
-- include: install-yum.yml
-  when: ansible_pkg_mgr == 'yum'
+- name: Install Skylable SX from a binary package
+  include: from-package/install-sx.yml
+  when: sx_build_commit is none
 
 - name: Confirm existence of /var/lib/sxserver
   file:
