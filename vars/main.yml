@@ -1,2 +1,2 @@
 ---
-# vars file for ansible-sx
+sx_build_stamp_path: "{{ sx_build_dir }}/sx.stamp"

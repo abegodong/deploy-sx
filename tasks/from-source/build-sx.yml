@@ -6,6 +6,11 @@
 - name: Build sx
   shell: >
     cd {{ sx_repo_dir }} &&
-    ./configure {% if nss_check.rc == 0 %}--with-nss{% endif %}&&
+    ./configure --prefix={{ sx_build_dir }} {% if nss_check.rc == 0 %}--with-nss{% endif %}&&
     make -j {{ ansible_processor_vcpus }} &&
     make install
+
+- name: Store build stamp
+  shell: >
+    cd {{ sx_repo_dir }} &&
+    git describe --always > {{ sx_build_stamp_path }}
