@@ -1,6 +1,11 @@
+- name: Detect NSS
+  shell: curl --version | grep -w NSS
+  register: nss_check
+  failed_when: "{{ nss_check.rc == '2' }}"
+
 - name: Build sx
   shell: >
     cd {{ sx_repo_dir }} &&
-    ./configure &&
+    ./configure {% if nss_check.rc == 0 %}--with-nss{% endif %}&&
     make &&
     make install
