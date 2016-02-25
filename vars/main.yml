@@ -1,2 +1,3 @@
 ---
+sx_build_from_source: "{{ sx_build_commit is not none }}"
 sx_build_stamp_path: "{{ sx_build_dir }}/sx.stamp"

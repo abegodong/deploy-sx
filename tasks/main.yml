@@ -46,11 +46,11 @@
 
 - name: Install Skylable SX from source
   include: from-source/install-sx.yml
-  when: sx_build_commit is not none
+  when: sx_build_from_source
 
 - name: Install Skylable SX from a binary package
   include: from-package/install-sx.yml
-  when: sx_build_commit is none
+  when: not sx_build_from_source
 
 - name: Confirm existence of /var/lib/sxserver
   file:
