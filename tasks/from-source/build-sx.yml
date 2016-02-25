@@ -7,5 +7,5 @@
   shell: >
     cd {{ sx_repo_dir }} &&
     ./configure {% if nss_check.rc == 0 %}--with-nss{% endif %}&&
-    make &&
+    make -j {{ ansible_processor_vcpus }} &&
     make install
