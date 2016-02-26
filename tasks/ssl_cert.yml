@@ -16,12 +16,12 @@
 
 - name: Generate SSL certificate
   command: >
-      "openssl req -days {{ cert_validity }} -x509
+      openssl req -days {{ cert_validity }} -x509
       -config {{ sx_lib_dir }}/openssl.cnf -new
       -keyout {{ sx_build_prefix }}/etc/ssl/private/sxkey.pem
-      -out {{ sx_build_prefix }}/etc/ssl/certs/sxcert.pem"
-    args:
-      creates: "{{ sx_build_prefix }}/etc/ssl/private/sxkey.pem"
+      -out {{ sx_build_prefix }}/etc/ssl/certs/sxcert.pem
+  args:
+    creates: "{{ sx_build_prefix }}/etc/ssl/private/sxkey.pem"
   when: is_first_node|bool
 
 - name: Download SSL key
