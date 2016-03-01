@@ -29,6 +29,9 @@ Role Variables
 | `sx_server_user`           | `nobody`                         | server will run as this user                             |
 | `sx_children_num`          | `32`                             | number of concurrent requests supported                  |
 | `sx_reserved_children_num` | `8`                              | number of processes used to communicate with other nodes |
+| `sx_build_version`         | `~`                              | if given, builds sx from given branch, commit or tag     |
+| ├─`sx_repo_dir`            | `/root/sx`                       | path where sx repository will be downloaded              |
+| └─`sx_build_dir`           | `/usr/local`                     | path where sx will be installed                          |
 
 | Per host variable     | Default value                  | Explanation                                                      |
 |-----------------------|--------------------------------|------------------------------------------------------------------|

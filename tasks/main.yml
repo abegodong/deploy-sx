@@ -3,6 +3,7 @@
   assert:
     that:
     - sx_cluster_name is defined
+    - sx_cluster_name is defined
     - sx_nodes_group is defined and sx_nodes_group in groups
   run_once: true
 
@@ -43,11 +44,13 @@
     sx_node_ip: "{{ ansible_default_ipv4.address }}"
   when: sx_node_ip is not defined
 
-- include: install-apt.yml
-  when: ansible_pkg_mgr == 'apt'
+- name: Install Skylable SX from source
+  include: from-source/install-sx.yml
+  when: sx_build_from_source
 
-- include: install-yum.yml
-  when: ansible_pkg_mgr == 'yum'
+- name: Install Skylable SX from a binary package
+  include: from-package/install-sx.yml
+  when: not sx_build_from_source
 
 - name: Confirm existence of /var/lib/sxserver
   file:
@@ -60,13 +63,13 @@
 - name: Create Skylable SX configuration template for first node
   template:
     src: sxsetup.initial.j2
-    dest: /etc/sxserver/sxsetup.tmp
+    dest: "{{ sx_build_prefix }}/etc/sxserver/sxsetup.tmp"
   when: is_first_node|bool
 
 - name: Start first node
-  command:
-    sxsetup --config-file /etc/sxserver/sxsetup.tmp
-    creates=/etc/sxserver/sxsetup.conf
+  command: 
+    sxsetup --config-file {{ sx_build_prefix }}/etc/sxserver/sxsetup.tmp
+    creates={{ sx_build_prefix }}/etc/sxserver/sxsetup.conf
   when: is_first_node|bool
 
 - name: Get cluster UUID
@@ -99,13 +102,13 @@
 - name: Create Skylable SX configuration template for remaining nodes
   template:
     src: sxsetup.tmp.j2
-    dest: /etc/sxserver/sxsetup.tmp
+    dest: "{{ sx_build_prefix }}/etc/sxserver/sxsetup.tmp"
   when: not is_first_node|bool
 
 - name: Start remaining nodes
-  command:
-    sxsetup --bare --config-file /etc/sxserver/sxsetup.tmp
-    creates=/etc/sxserver/sxsetup.conf
+  command: 
+    sxsetup --bare --config-file {{ sx_build_prefix }}/etc/sxserver/sxsetup.tmp
+    creates={{ sx_build_prefix }}/etc/sxserver/sxsetup.conf
   when: not is_first_node|bool
 
 - name: Configure cluster

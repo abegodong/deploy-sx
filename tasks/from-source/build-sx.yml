@@ -1,0 +1,23 @@
+- name: Clean up previous build
+  shell: >
+    cd {{ sx_repo_dir }} &&
+    git clean -xfd
+
+- name: Detect NSS
+  shell: curl --version | grep -w NSS
+  args:
+    warn: no  # mute the suggestion to use get_url module
+  register: nss_check
+  failed_when: "{{ nss_check.rc == '2' }}"
+
+- name: Build Skylable SX
+  shell: >
+    cd {{ sx_repo_dir }} &&
+    ./configure --prefix={{ sx_build_dir }} {% if nss_check.rc == 0 %}--with-nss{% endif %}&&
+    make -j {{ ansible_processor_vcpus }} &&
+    make install
+
+- name: Store build stamp
+  shell: >
+    cd {{ sx_repo_dir }} &&
+    git describe --always > {{ sx_build_stamp_path }}

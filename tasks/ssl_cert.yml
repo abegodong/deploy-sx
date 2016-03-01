@@ -1,11 +1,11 @@
 - name: Confirm existence of /etc/ssl/private dir
   file:
-    path: /etc/ssl/private
+    path: "/etc/ssl/private"
     state: directory
 
 - name: Confirm existence of /etc/ssl/certs dir
   file:
-    path: /etc/ssl/certs
+    path: "/etc/ssl/certs"
     state: directory
 
 - name: Create SSL certificate configuration
@@ -16,24 +16,28 @@
 
 - name: Generate SSL certificate
   command: >
-      openssl req -days {{ cert_validity }} -x509 -config {{ sx_lib_dir }}/openssl.cnf -new -keyout /etc/ssl/private/sxkey.pem -out /etc/ssl/certs/sxcert.pem
-      creates=/etc/ssl/private/sxkey.pem
+      openssl req -days {{ cert_validity }} -x509
+      -config {{ sx_lib_dir }}/openssl.cnf -new
+      -keyout /etc/ssl/private/sxkey.pem
+      -out /etc/ssl/certs/sxcert.pem
+  args:
+    creates: "/etc/ssl/private/sxkey.pem"
   when: is_first_node|bool
 
 - name: Download SSL key
-  slurp: src=/etc/ssl/private/sxkey.pem
+  slurp: "src=/etc/ssl/private/sxkey.pem"
   register: ssl_key
   when: is_first_node|bool
 
 - name: Download SSL certificate
-  slurp: src=/etc/ssl/certs/sxcert.pem
+  slurp: "src=/etc/ssl/certs/sxcert.pem"
   register: ssl_cert
   when: is_first_node|bool
 
 - name: Upload SSL key file
   copy:
     content: "{{ hostvars[first_node_name].ssl_key.content|b64decode }}"
-    dest: /etc/ssl/private/sxkey.pem
+    dest: "/etc/ssl/private/sxkey.pem"
     owner: "{{ sx_server_user }}"
     group: "{{ sx_server_group }}"
     mode: 0600
@@ -42,7 +46,7 @@
 - name: Upload SSL cert file
   copy:
     content: "{{ hostvars[first_node_name].ssl_cert.content|b64decode }}"
-    dest: /etc/ssl/certs/sxcert.pem
+    dest: "/etc/ssl/certs/sxcert.pem"
     owner: "{{ sx_server_user }}"
     group: "{{ sx_server_group }}"
     mode: 0600
