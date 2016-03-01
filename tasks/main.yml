@@ -67,31 +67,31 @@
   when: is_first_node|bool
 
 - name: Start first node
-  command: 
-    sxsetup --config-file {{ sx_build_prefix }}/etc/sxserver/sxsetup.tmp
+  command: >
+    {{ sx_sbin_path }}sxsetup --config-file {{ sx_build_prefix }}/etc/sxserver/sxsetup.tmp
     creates={{ sx_build_prefix }}/etc/sxserver/sxsetup.conf
   when: is_first_node|bool
 
 - name: Get cluster UUID
-  shell: "sxsetup --info | sed -n '-es/Cluster UUID: //p'"
+  shell: "{{ sx_sbin_path }}sxsetup --info | sed -n '-es/Cluster UUID: //p'"
   register: sx_cluster_uuid
   changed_when: false
   when: is_first_node|bool
 
 - name: Get cluster key
-  shell: "sxsetup --info | sed -n '-es/Cluster key: //p'"
+  shell: "{{ sx_sbin_path }}sxsetup --info | sed -n '-es/Cluster key: //p'"
   register: sx_cluster_key
   changed_when: false
   when: is_first_node|bool
 
 - name: Get admin key
-  shell: "sxsetup --info | sed -n '-es/Admin key: //p'"
+  shell: "{{ sx_sbin_path }}sxsetup --info | sed -n '-es/Admin key: //p'"
   register: sx_admin_key
   changed_when: false
   when: is_first_node|bool
 
 - name: Get node UUIDs
-  shell: sxsetup --info | awk '$1 == "*" { print $2 }'
+  shell: "{{ sx_sbin_path }}sxsetup --info | awk '$1 == \"*\" { print $2 }'"
   changed_when: false
   register: sx_node_uuid
 
@@ -106,14 +106,14 @@
   when: not is_first_node|bool
 
 - name: Start remaining nodes
-  command: 
-    sxsetup --bare --config-file {{ sx_build_prefix }}/etc/sxserver/sxsetup.tmp
+  command: >
+    {{ sx_sbin_path }}sxsetup --bare --config-file {{ sx_build_prefix }}/etc/sxserver/sxsetup.tmp
     creates={{ sx_build_prefix }}/etc/sxserver/sxsetup.conf
   when: not is_first_node|bool
 
 - name: Configure cluster
   command:
-    sxadm cluster -b -M {% for sx_node in groups[sx_nodes_group] %}{{ hostvars[sx_node].sx_node_desc }} {% endfor %}sx://admin@{{ sx_cluster_name }}
+    "{{ sx_sbin_path }}sxadm cluster -b -M {% for sx_node in groups[sx_nodes_group] %}{{ hostvars[sx_node].sx_node_desc }} {% endfor %}sx://admin@{{ sx_cluster_name }}"
   when: is_first_node|bool
 
 - name: print admin key
