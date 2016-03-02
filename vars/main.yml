@@ -3,4 +3,4 @@ sx_build_from_source: "{{ sx_build_version is not none }}"
 sx_build_prefix: "{% if sx_build_from_source %}{{ sx_build_dir }}{% endif %}"
 sx_build_stamp_path: "{{ sx_build_prefix }}/sx.stamp"
 
-sx_sbin_path: "{% if sx_build_from_source %}{{ sx_build_prefix }}/sbin/{% endif %}"
+sx_sbin_path: "{% if sx_build_from_source %}{{ sx_build_prefix }}/sbin/{% else %}/usr/sbin/{% endif %}"
