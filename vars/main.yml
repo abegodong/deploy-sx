@@ -1,4 +1,7 @@
 ---
+sx_lib_dir: "{{ sx_build_prefix }}/var/lib/sxserver"
+sx_run_dir: "{{ sx_build_prefix }}/var/run/sxserver"
+
 sx_build_from_source: "{{ sx_build_version is not none }}"
 sx_build_prefix: "{% if sx_build_from_source %}{{ sx_build_dir }}{% endif %}"
 sx_build_stamp_path: "{{ sx_build_prefix }}/sx.stamp"
