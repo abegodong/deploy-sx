@@ -95,6 +95,12 @@
   changed_when: false
   register: sx_node_uuid
 
+- name: Initialize admin profile on the first node
+  shell: >
+    {{ sx_sbin_path }}sxsetup --info | sed -n '-es/Admin key: //p' | {{ sx_bin_path }}sxinit --key --batch-mode --force-reinit --port={{ sx_port }} {% if not sx_use_ssl %}--no-ssl {% endif %}--auth-file - --host-list={{ sx_node_ip }} "sx://admin@{{ sx_cluster_name }}"
+    creates="{{ sx_cache_dir }}/{{ sx_cluster_name }}/auth/admin"
+  when: is_first_node|bool
+
 - name: Set cluster member description
   set_fact:
     sx_node_desc: "{{ sx_node_size }}/{{ sx_node_ip }}/{{ sx_node_internal_ip|default('') }}{% if sx_node_uuid.stdout %}/{{ sx_node_uuid.stdout }}{% endif %}"
