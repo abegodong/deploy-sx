@@ -1,5 +1,3 @@
-# openssl req -days {{ cert_validity }} -x509 -config {{ sx_lib_dir }}/openssl.cnf -new -keyout /etc/ssl/private/sxkey.pem -out /etc/ssl/certs/sxcert.pem
-
 [ req ]
 default_bits= {{ cert_key_size }}
 distinguished_name  = req_distinguished_name
