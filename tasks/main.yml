@@ -44,6 +44,10 @@
     sx_node_ip: "{{ ansible_default_ipv4.address }}"
   when: sx_node_ip is not defined
 
+- name: Determine initial node IP address
+  set_fact:
+    sx_first_node_ip: "{{ hostvars[first_node_name]['sx_node_ip'] }}"
+
 - name: Install Skylable SX from source
   include: from-source/install-sx.yml
   when: sx_build_from_source
@@ -121,6 +125,12 @@
   command:
     "{{ sx_sbin_path }}sxadm cluster -b -M {% for sx_node in groups[sx_nodes_group] %}{{ hostvars[sx_node].sx_node_desc }} {% endfor %}sx://admin@{{ sx_cluster_name }}"
   when: is_first_node|bool
+
+- name: Initialize admin profile on remaining nodes
+  shell: >
+    {{ sx_sbin_path }}sxsetup --info | sed -n '-es/Admin key: //p' | {{ sx_bin_path }}sxinit --key --batch-mode --force-reinit --port={{ sx_port }} {% if not sx_use_ssl %}--no-ssl {% endif %}--auth-file - --host-list={{ sx_first_node_ip }} "sx://admin@{{ sx_cluster_name }}"
+    creates="{{ sx_cache_dir }}/{{ sx_cluster_name }}/auth/admin"
+  when: not is_first_node|bool
 
 - name: print admin key
   debug: var=sx_admin_key.stdout
