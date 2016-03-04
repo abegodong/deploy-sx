@@ -25,7 +25,7 @@ Role Variables
 | `sx_http_port`             | `80`                             | port to use for HTTP (if `sx_use_ssl` is `false`)        |
 | `sx_https_port`            | `443`                            | port to use for HTTPS (if `sx_use_ssl` is `true`)        |
 | `sx_data_dir`              | `/var/lib/sxserver/storage`      | where to store the data on each node                     |
-| `sx_log_file`              | `/var/log/sxserver/sxserver.log` | path to logfile                                          |
+| `sx_log_file`              | `/var/log/sxserver/sxfcgi.log`   | path to logfile                                          |
 | `sx_server_user`           | `nobody`                         | server will run as this user                             |
 | `sx_children_num`          | `32`                             | number of concurrent requests supported                  |
 | `sx_reserved_children_num` | `8`                              | number of processes used to communicate with other nodes |
