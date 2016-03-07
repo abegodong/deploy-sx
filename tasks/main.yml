@@ -3,7 +3,6 @@
   assert:
     that:
     - sx_cluster_name is defined
-    - sx_cluster_name is defined
     - sx_nodes_group is defined and sx_nodes_group in groups
   run_once: true
 
