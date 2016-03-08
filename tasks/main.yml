@@ -41,6 +41,12 @@
 - name: Determine node IP addresses
   set_fact:
     sx_node_ip: "{{ ansible_default_ipv4.address }}"
+  when:
+    - ansible_default_ipv4.address is defined
+    - sx_node_ip is not defined
+
+- name: Check if node IP addresses were determined
+  fail: msg="SX node IP address could not be determined. Please set sx_node_ip variable for the host."
   when: sx_node_ip is not defined
 
 - name: Determine initial node IP address
