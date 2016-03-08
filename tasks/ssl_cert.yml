@@ -1,12 +1,13 @@
-- name: Confirm existence of /etc/ssl/private dir
+- name: Confirm existence of etc/ssl/private dir
   file:
     path: "{{ sx_build_prefix }}/etc/ssl/private"
     state: directory
 
-- name: Confirm existence of /etc/ssl/certs dir
+- name: Confirm existence of etc/ssl/certs dir
   file:
     path: "{{ sx_build_prefix }}/etc/ssl/certs"
     state: directory
+    follow: yes
 
 - name: Create SSL certificate configuration
   template:
