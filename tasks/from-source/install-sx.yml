@@ -15,11 +15,36 @@
   with_items:
     - make
     - gcc
-    - libcurl-devel
     - zlib-devel
     - openssl-devel
     - fuse-devel
     - git
+    - file
+
+- name: Determine the name of curl dependency package (yum)
+  when: ansible_pkg_mgr == 'yum'
+  command: yum info libcurl-devel
+  args:
+    warn: no  # mute the suggestion to use yum module
+  register: libcurl_check
+  failed_when: False
+
+- name: Install Skylable SX curl dependency (yum)
+  when: ansible_pkg_mgr == 'yum'
+  yum: name="{% if libcurl_check.rc == 0 %}libcurl-devel{% else %}curl-devel{% endif %}" state=installed
+
+- name: Detect NSS
+  shell: curl --version | grep -w NSS
+  args:
+    warn: no  # mute the suggestion to use get_url module
+  register: nss_check
+  failed_when: "{{ nss_check.rc == '2' }}"
+
+- name: Install NSS dependency (yum)
+  when:
+    - ansible_pkg_mgr == 'yum'
+    - nss_check.rc == 0
+  yum: name=nss-devel state=installed
 
 - name: Clone Skylable SX git repository
   git: repo=http://git.skylable.com/sx dest={{ sx_repo_dir }} version={{ sx_build_version }}

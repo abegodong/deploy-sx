@@ -3,13 +3,6 @@
     cd {{ sx_repo_dir }} &&
     git clean -xfd
 
-- name: Detect NSS
-  shell: curl --version | grep -w NSS
-  args:
-    warn: no  # mute the suggestion to use get_url module
-  register: nss_check
-  failed_when: "{{ nss_check.rc == '2' }}"
-
 - name: Build Skylable SX
   shell: >
     cd {{ sx_repo_dir }} &&
