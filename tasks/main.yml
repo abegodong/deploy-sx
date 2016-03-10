@@ -142,5 +142,5 @@
   when: is_first_node|bool
 
 - name: breadcrumb
-  debug: msg="Cluster installed. Now run sxinit {% if not sx_use_ssl %}--no-ssl {% endif %}sx://{{ sx_cluster_name }}"
+  debug: msg="Cluster installed. Now run sxinit --force-reinit --key {% if not sx_use_ssl %}--no-ssl {% endif %}-l {{ sx_first_node_ip }} --port={{ sx_port }} sx://{{ sx_cluster_name }}"
   when: is_first_node|bool
