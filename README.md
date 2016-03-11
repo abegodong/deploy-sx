@@ -12,26 +12,25 @@ This role can be used only for deploying on Linux systems running CentOS/Fedora/
 Role Variables
 --------------
 
-| Global Variable            | Default Value                    | Explanation                                                                                   |
-|----------------------------|----------------------------------|-----------------------------------------------------------------------------------------------|
-| `sx_cluster_name`          | -                                | name of SX cluster (required)                                                                 |
-| `sx_nodes_group`           | -                                | name of the host group to deploy SX on                                                        |
-| `cert_key_size`            | -                                | size of SSL certificate key (2048 recommended)                                                |
-| `cert_country_code`        | -                                | country code for SSL certificate                                                              |
-| `cert_locality_name`       | -                                | locality name for SSL certificate                                                             |
-| `cert_organization_name`   | -                                | org name for SSL certificate                                                                  |
-| `cert_validity`            | -                                | validity in days for SSL certificate                                                          |
-| `sx_use_ssl`               | `true`                           | require SSL for server communication (recommended)                                            |
-| `sx_http_port`             | `80`                             | port to use for HTTP (if `sx_use_ssl` is `false`)                                             |
-| `sx_https_port`            | `443`                            | port to use for HTTPS (if `sx_use_ssl` is `true`)                                             |
-| `sx_data_dir`              | `/var/lib/sxserver/storage`      | where to store the data on each node                                                          |
-| `sx_log_file`              | `/var/log/sxserver/sxfcgi.log`   | path to logfile                                                                               |
-| `sx_server_user`           | `nobody`                         | server will run as this user                                                                  |
-| `sx_children_num`          | `32`                             | number of concurrent requests supported                                                       |
-| `sx_reserved_children_num` | `8`                              | number of processes used to communicate with other nodes                                      |
-| `sx_build_version`         | `~`                              | if given, builds SX from given branch, commit or tag; if set to `~`, installs SX from package |
-| ├─`sx_repo_dir`            | `/root/sx`                       | path where SX repository will be downloaded (if installed from source)                        |
-| └─`sx_build_dir`           | `/usr/local`                     | path where SX will be installed (if installed from source)                                    |
+| Global Variable            | Default Value                    | Explanation                                                                                      |
+|----------------------------|----------------------------------|--------------------------------------------------------------------------------------------------|
+| `sx_cluster_name`          | -                                | name of SX cluster (required)                                                                    |
+| `sx_nodes_group`           | -                                | name of the host group to deploy SX on                                                           |
+| `cert_key_size`            | -                                | size of SSL certificate key (2048 recommended)                                                   |
+| `cert_country_code`        | -                                | country code for SSL certificate                                                                 |
+| `cert_locality_name`       | -                                | locality name for SSL certificate                                                                |
+| `cert_organization_name`   | -                                | org name for SSL certificate                                                                     |
+| `cert_validity`            | -                                | validity in days for SSL certificate                                                             |
+| `sx_use_ssl`               | `true`                           | require SSL for server communication (recommended)                                               |
+| `sx_port`                  | `443`/`80`                       | port to use for cluster communication (defaults to 443 if `sx_use_ssl` is `true`, 80 otherwise)  |
+| `sx_data_dir`              | `/var/lib/sxserver/storage`      | where to store the data on each node                                                             |
+| `sx_log_file`              | `/var/log/sxserver/sxfcgi.log`   | path to logfile                                                                                  |
+| `sx_server_user`           | `nobody`                         | server will run as this user                                                                     |
+| `sx_children_num`          | `32`                             | number of concurrent requests supported                                                          |
+| `sx_reserved_children_num` | `8`                              | number of processes used to communicate with other nodes                                         |
+| `sx_build_version`         | `~`                              | if given, builds SX from given branch, commit or tag; if set to `~`, installs SX from package    |
+| ├─`sx_repo_dir`            | `/root/sx`                       | path where SX repository will be downloaded (if installed from source)                           |
+| └─`sx_build_dir`           | `/usr/local`                     | path where SX will be installed (if installed from source)                                       |
 
 | Per host variable     | Default value                  | Explanation                                                      |
 |-----------------------|--------------------------------|------------------------------------------------------------------|

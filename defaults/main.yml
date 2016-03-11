@@ -1,7 +1,5 @@
 sx_use_ssl: true
-sx_http_port: 80
-sx_https_port: 443
-sx_port: "{% if sx_use_ssl %}{{ sx_https_port }}{% else %}{{ sx_http_port }}{% endif %}"
+sx_port: "{% if sx_use_ssl %}443{% else %}80{% endif %}"
 sx_data_dir: "{{ sx_build_prefix }}/var/lib/sxserver/storage"
 sx_log_file: "{{ sx_build_prefix }}/var/log/sxserver/sxfcgi.log"
 sx_server_user: nobody
