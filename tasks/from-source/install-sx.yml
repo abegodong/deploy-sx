@@ -39,7 +39,7 @@
     warn: no  # mute the suggestion to use get_url module
   register: nss_check
   changed_when: False
-  failed_when: "{{ nss_check.rc == '2' }}"
+  failed_when: "{{ nss_check.rc == 2 }}"
 
 - name: Install NSS dependency (yum)
   when:
