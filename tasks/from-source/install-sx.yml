@@ -8,6 +8,8 @@
     - zlib1g-dev
     - libssl-dev
     - git
+    - fuse
+    - libfuse-dev
 
 - name: Install Skylable SX dependencies (yum)
   when: ansible_pkg_mgr == 'yum'
