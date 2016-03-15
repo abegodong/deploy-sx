@@ -77,7 +77,7 @@
 
 - name: Start first node
   command: >
-    {{ sx_sbin_path }}sxsetup --config-file {{ sx_build_prefix }}/etc/sxserver/sxsetup.tmp
+    {{ sx_sbin_path }}sxsetup --config-file {{ sx_build_prefix }}/etc/sxserver/sxsetup.tmp{% if sx_debug %} --debug{% endif %}
     creates={{ sx_build_prefix }}/etc/sxserver/sxsetup.conf
   when: is_first_node|bool
 
@@ -106,7 +106,7 @@
 
 - name: Initialize admin profile on the first node
   shell: >
-    {{ sx_sbin_path }}sxsetup --info | sed -n '-es/Admin key: //p' | {{ sx_bin_path }}sxinit --key --batch-mode --force-reinit --port={{ sx_port }} {% if not sx_use_ssl %}--no-ssl {% endif %}--auth-file - --host-list={{ sx_node_ip }} "sx://admin@{{ sx_cluster_name }}"
+    {{ sx_sbin_path }}sxsetup --info | sed -n '-es/Admin key: //p' | {{ sx_bin_path }}sxinit --key --batch-mode --force-reinit --port={{ sx_port }} {% if not sx_use_ssl %}--no-ssl {% endif %}--auth-file - --host-list={{ sx_node_ip }} {% if sx_debug %}--debug {% endif %}"sx://admin@{{ sx_cluster_name }}"
     creates="{{ sx_cache_dir }}/{{ sx_cluster_name }}/auth/admin"
   when: is_first_node|bool
 
@@ -122,18 +122,18 @@
 
 - name: Start remaining nodes
   command: >
-    {{ sx_sbin_path }}sxsetup --bare --config-file {{ sx_build_prefix }}/etc/sxserver/sxsetup.tmp
+    {{ sx_sbin_path }}sxsetup --bare --config-file {{ sx_build_prefix }}/etc/sxserver/sxsetup.tmp{% if sx_debug %} --debug{% endif %}
     creates={{ sx_build_prefix }}/etc/sxserver/sxsetup.conf
   when: not is_first_node|bool
 
 - name: Configure cluster
   command:
-    "{{ sx_sbin_path }}sxadm cluster -b -M {% for sx_node in groups[sx_nodes_group] %}{{ hostvars[sx_node].sx_node_desc }} {% endfor %}sx://admin@{{ sx_cluster_name }}"
+    "{{ sx_sbin_path }}sxadm cluster {% if sx_debug %}--debug {% endif %}-b -M {% for sx_node in groups[sx_nodes_group] %}{{ hostvars[sx_node].sx_node_desc }} {% endfor %}sx://admin@{{ sx_cluster_name }}"
   when: is_first_node|bool
 
 - name: Initialize admin profile on remaining nodes
   shell: >
-    {{ sx_sbin_path }}sxsetup --info | sed -n '-es/Admin key: //p' | {{ sx_bin_path }}sxinit --key --batch-mode --force-reinit --port={{ sx_port }} {% if not sx_use_ssl %}--no-ssl {% endif %}--auth-file - --host-list={{ sx_first_node_ip }} "sx://admin@{{ sx_cluster_name }}"
+    {{ sx_sbin_path }}sxsetup --info | sed -n '-es/Admin key: //p' | {{ sx_bin_path }}sxinit --key --batch-mode --force-reinit --port={{ sx_port }} {% if not sx_use_ssl %}--no-ssl {% endif %}--auth-file - --host-list={{ sx_first_node_ip }} {% if sx_debug %}--debug {% endif %}"sx://admin@{{ sx_cluster_name }}"
     creates="{{ sx_cache_dir }}/{{ sx_cluster_name }}/auth/admin"
   when: not is_first_node|bool
 

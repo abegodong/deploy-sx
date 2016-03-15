@@ -10,3 +10,5 @@ sx_reserved_children_num: 8
 sx_repo_dir: /root/sx
 sx_build_dir: /usr/local
 sx_build_version: ~
+
+sx_debug: false
