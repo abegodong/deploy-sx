@@ -3,12 +3,23 @@
     cd {{ sx_repo_dir }} &&
     git clean -xfd
 
-- name: Build Skylable SX
-  shell: >
-    cd {{ sx_repo_dir }} &&
-    ./configure --prefix={{ sx_build_dir }} {% if nss_check.rc == 0 %}--with-nss{% endif %}&&
-    make -j {{ ansible_processor_vcpus }} &&
+- name: Configure build environment
+  command: >
+    ./configure --prefix={{ sx_build_dir }} {% if nss_check.rc == 0 %}--with-nss{% endif %}{% if sx_custom_configure_options %} {{ sx_custom_configure_options }}{% endif %}
+  args:
+    chdir: "{{ sx_repo_dir }}"
+
+- name: Build SX from source
+  command: >
+    make -j {{ ansible_processor_vcpus }}
+  args:
+    chdir: "{{ sx_repo_dir }}"
+
+- name: Install SX built from source
+  command: >
     make install
+  args:
+    chdir: "{{ sx_repo_dir }}"
 
 - name: Store build stamp
   shell: >

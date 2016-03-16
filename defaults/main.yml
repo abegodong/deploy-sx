@@ -12,3 +12,4 @@ sx_build_dir: /usr/local
 sx_build_version: ~
 
 sx_debug: false
+sx_custom_configure_options: ~
