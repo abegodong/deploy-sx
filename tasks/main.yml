@@ -38,6 +38,18 @@
   debug: var=first_node_name
   when: is_first_node|bool
 
+- name: Get cluster UUID of a node
+  shell: >
+    {{ sx_sbin_path }}sxsetup --info | sed -n '-es/Cluster UUID: //p'
+  register: sx_local_cluster_uuid
+  changed_when: false
+
+- name: Ensure that there are no cluster UUID mismatches
+  fail: msg="Failure! Cluster UUIDs of '{{ item }}' and of the first host differ!"
+  when: "{{ (hostvars[item].sx_local_cluster_uuid.stdout and hostvars[item].sx_local_cluster_uuid.stdout != hostvars[first_node_name].sx_local_cluster_uuid.stdout)|bool }}"
+  run_once: true
+  with_items: "{{ groups[sx_nodes_group] }}"
+
 - name: Determine node IP addresses
   set_fact:
     sx_node_ip: "{{ ansible_default_ipv4.address }}"
