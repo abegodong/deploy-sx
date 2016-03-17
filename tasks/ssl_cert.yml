@@ -35,6 +35,11 @@
   register: ssl_cert
   when: is_first_node|bool
 
+- name: Check if SSL key file exists
+  stat:
+    path: "{{ sx_build_prefix }}/etc/ssl/private/sxkey.pem"
+  register: sxkey_stat
+
 - name: Upload SSL key file
   copy:
     content: "{{ hostvars[first_node_name].ssl_key.content|b64decode }}"
@@ -43,6 +48,12 @@
     group: "{{ sx_server_group }}"
     mode: 0600
     force: no
+  when: not sxkey_stat.stat.exists
+
+- name: Check if SSL cert file exists
+  stat:
+    path: "{{ sx_build_prefix }}/etc/ssl/certs/sxcert.pem"
+  register: sxcert_stat
 
 - name: Upload SSL cert file
   copy:
@@ -52,3 +63,4 @@
     group: "{{ sx_server_group }}"
     mode: 0600
     force: no
+  when: not sxcert_stat.stat.exists
