@@ -10,6 +10,7 @@
     - git
     - fuse
     - libfuse-dev
+    - file
 
 - name: Install Skylable SX dependencies (yum)
   when: ansible_pkg_mgr == 'yum'
