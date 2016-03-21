@@ -111,15 +111,37 @@
   changed_when: false
   when: is_first_node|bool
 
+- name: Register admin key for remaining nodes
+  set_fact:
+    sx_admin_key: "{{ hostvars[first_node_name].sx_admin_key }}"
+  when: not is_first_node|bool
+
 - name: Get node UUIDs
   shell: "{{ sx_sbin_path }}sxsetup --info | awk '$1 == \"*\" { print $2 }'"
   changed_when: false
   register: sx_node_uuid
 
-- name: Initialize admin profile on the first node
-  shell: >
-    {{ sx_sbin_path }}sxsetup --info | sed -n '-es/Admin key: //p' | {{ sx_bin_path }}sxinit --key --batch-mode --force-reinit --port={{ sx_port }} {% if not sx_use_ssl %}--no-ssl {% endif %}--auth-file - --host-list={{ sx_node_ip }} {% if sx_debug %}--debug {% endif %}"sx://admin@{{ sx_cluster_name }}"
-    creates="{{ sx_cache_dir }}/{{ sx_cluster_name }}/auth/admin"
+- block:
+  - name: Create a temporary file for storing the admin key
+    command: "mktemp {{ ansible_user_dir }}/key-XXXXXX.tmp"
+    register: tmpkeyfile
+
+  - name: Record admin key in the temporary file
+    copy:
+      content: "{{ sx_admin_key.stdout }}"
+      dest: "{{ tmpkeyfile.stdout }}"
+      mode: 0600
+
+  - name: Initialize admin profile on the first node
+    shell: >
+      {{ sx_bin_path }}sxinit --key --batch-mode --force-reinit --port={{ sx_port }} {% if not sx_use_ssl %}--no-ssl {% endif %}--auth-file {{ tmpkeyfile.stdout }} --host-list={{ sx_node_ip }} {% if sx_debug %}--debug {% endif %}"sx://admin@{{ sx_cluster_name }}"
+      creates="{{ sx_cache_dir }}/{{ sx_cluster_name }}/auth/admin"
+
+  always:
+  - name: Remove temporary admin key file
+    file:
+      path: "{{ tmpkeyfile.stdout }}"
+      state: absent
   when: is_first_node|bool
 
 - name: Set cluster member description
@@ -143,10 +165,27 @@
     "{{ sx_sbin_path }}sxadm cluster {% if sx_debug %}--debug {% endif %}-b -M {% for sx_node in groups[sx_nodes_group] %}{{ hostvars[sx_node].sx_node_desc }} {% endfor %}sx://admin@{{ sx_cluster_name }}"
   when: is_first_node|bool
 
-- name: Initialize admin profile on remaining nodes
-  shell: >
-    {{ sx_sbin_path }}sxsetup --info | sed -n '-es/Admin key: //p' | {{ sx_bin_path }}sxinit --key --batch-mode --force-reinit --port={{ sx_port }} {% if not sx_use_ssl %}--no-ssl {% endif %}--auth-file - --host-list={{ sx_first_node_ip }} {% if sx_debug %}--debug {% endif %}"sx://admin@{{ sx_cluster_name }}"
-    creates="{{ sx_cache_dir }}/{{ sx_cluster_name }}/auth/admin"
+- block:
+  - name: Create a temporary file for storing the admin key
+    command: "mktemp {{ ansible_user_dir }}/key-XXXXXX.tmp"
+    register: tmpkeyfile
+
+  - name: Record admin key in the temporary file
+    copy:
+      content: "{{ sx_admin_key.stdout }}"
+      dest: "{{ tmpkeyfile.stdout }}"
+      mode: 0600
+
+  - name: Initialize admin profile on remaining nodes
+    shell: >
+      {{ sx_bin_path }}sxinit --key --batch-mode --force-reinit --port={{ sx_port }} {% if not sx_use_ssl %}--no-ssl {% endif %}--auth-file {{ tmpkeyfile.stdout }} --host-list={{ sx_first_node_ip }} {% if sx_debug %}--debug {% endif %}"sx://admin@{{ sx_cluster_name }}"
+      creates="{{ sx_cache_dir }}/{{ sx_cluster_name }}/auth/admin"
+
+  always:
+  - name: Remove temporary admin key file
+    file:
+      path: "{{ tmpkeyfile.stdout }}"
+      state: absent
   when: not is_first_node|bool
 
 - name: print admin key
