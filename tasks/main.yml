@@ -158,12 +158,22 @@
   command: >
     {{ sx_sbin_path }}sxsetup --bare --config-file {{ sx_build_prefix }}/etc/sxserver/sxsetup.tmp{% if sx_debug %} --debug{% endif %}
     creates={{ sx_build_prefix }}/etc/sxserver/sxsetup.conf
+  register: bare_node_created
   when: not is_first_node|bool
 
 - name: Configure cluster
   command:
     "{{ sx_sbin_path }}sxadm cluster {% if sx_debug %}--debug {% endif %}-b -M {% for sx_node in groups[sx_nodes_group] %}{{ hostvars[sx_node].sx_node_desc }} {% endfor %}sx://admin@{{ sx_cluster_name }}"
+  register: bare_nodes_joined
   when: is_first_node|bool
+  tags:
+    - join-bare-nodes
+
+- name: Display bare node description
+  debug: "msg='Bare node created for cluster {{ hostvars[first_node_name].sx_cluster_uuid.stdout }}. Node description: {{ sx_node_desc }}'"
+  when:
+    - hostvars[first_node_name].bare_nodes_joined is not defined
+    - bare_node_created.changed
 
 - block:
   - name: Create a temporary file for storing the admin key
