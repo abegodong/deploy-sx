@@ -2,6 +2,7 @@
   shell: >
     cd {{ sx_repo_dir }} &&
     git clean -xfd
+  no_log: true
 
 - name: Configure build environment
   command: >
