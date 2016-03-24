@@ -121,6 +121,17 @@
   changed_when: false
   register: sx_node_uuid
 
+- name: Generate random node UUIDs for bare nodes
+  command: cat /proc/sys/kernel/random/uuid
+  changed_when: false
+  register: sx_random_node_uuid
+  when: not sx_node_uuid.stdout
+
+- name: Set UUIDs for bare nodes
+  set_fact:
+    sx_node_uuid: "{{ sx_random_node_uuid }}"
+  when: sx_random_node_uuid.skipped is not defined
+
 - block:
   - name: Create a temporary file for storing the admin key
     command: "mktemp {{ ansible_user_dir }}/key-XXXXXX.tmp"
