@@ -38,6 +38,13 @@
   debug: var=first_node_name
   when: is_first_node|bool
 
+- set_fact:
+    sx_zone: ""
+  when: sx_zone is not defined
+- set_fact:
+    zones: "{{ groups[sx_nodes_group]|map('extract', hostvars, 'sx_zone')|unique|difference([''])|sort }}"
+  when: is_first_node|bool
+
 - name: Get cluster UUID of a node
   shell: >
     {{ sx_sbin_path }}sxsetup --info | sed -n '-es/Cluster UUID: //p'
@@ -172,9 +179,18 @@
   register: bare_node_created
   when: not is_first_node|bool
 
+- block:
+  - name: Set zone configuration (intermediate task)
+    set_fact:
+      zone_conf: "{% for zone in zones %}{{ zone }}:{% for host in groups[sx_nodes_group] %}{% if hostvars[host].sx_zone == zone %}{{ hostvars[host].sx_node_uuid.stdout }},{% endif %}{% endfor %};{% endfor %};;"
+  - name: Set zone configuration
+    set_fact:
+      zone_conf: "{{ zone_conf|replace(',;', ';')|replace(';;;', '')|replace(';;', '') }}"
+  when: is_first_node|bool
+
 - name: Configure cluster
   command:
-    "{{ sx_sbin_path }}sxadm cluster {% if sx_debug %}--debug {% endif %}-b -M {% for sx_node in groups[sx_nodes_group] %}{{ hostvars[sx_node].sx_node_desc }} {% endfor %}sx://admin@{{ sx_cluster_name }}"
+    "{{ sx_sbin_path }}sxadm cluster {% if sx_debug %}--debug {% endif %}-b -M {% for sx_node in groups[sx_nodes_group] %}{{ hostvars[sx_node].sx_node_desc }} {% endfor %}{% if zone_conf %}{{ zone_conf }} {% endif %}sx://admin@{{ sx_cluster_name }}"
   register: bare_nodes_joined
   when: is_first_node|bool
   tags:
