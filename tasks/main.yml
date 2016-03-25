@@ -172,9 +172,20 @@
   register: bare_node_created
   when: not is_first_node|bool
 
+- name: Get current zone info for the cluster
+  shell: >
+    {{ sx_sbin_path }}sxadm cluster -b -I sx://admin@{{ sx_cluster_name }} | \
+      grep '^Current configuration:' | \
+      sed -e 's/^Current configuration: //' -e 's@[1-9][0-9]*/\(\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}/\)\{1,2\}[[:xdigit:]]\{8\}-\([[:xdigit:]]\{4\}-\)\{3\}[[:xdigit:]]\{12\} @@g'
+  changed_when: false
+  register: zone_conf
+  when: is_first_node|bool
+  tags:
+    - join-bare-nodes
+
 - name: Configure cluster
-  command:
-    "{{ sx_sbin_path }}sxadm cluster {% if sx_debug %}--debug {% endif %}-b -M {% for sx_node in groups[sx_nodes_group] %}{{ hostvars[sx_node].sx_node_desc }} {% endfor %}sx://admin@{{ sx_cluster_name }}"
+  shell: >
+    {{ sx_sbin_path }}sxadm cluster {% if sx_debug %}--debug {% endif %}-b -M {% for sx_node in groups[sx_nodes_group] %}{{ hostvars[sx_node].sx_node_desc }} {% endfor %}{% if zone_conf.stdout %}"{{ zone_conf.stdout }}" {% endif %}sx://admin@"{{ sx_cluster_name }}"
   register: bare_nodes_joined
   when: is_first_node|bool
   tags:
